@@ -32,7 +32,6 @@ public class Usuario {
         this.nombre = nombre;
     }
 
-    // Getters y Setters
     public Long getId() {
         return id;
     }

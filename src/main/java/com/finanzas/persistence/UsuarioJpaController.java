@@ -3,7 +3,7 @@ package com.finanzas.persistence;
 import com.finanzas.model.Usuario;
 import com.finanzas.util.JPAUtil;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
+import java.util.List;
 
 public class UsuarioJpaController {
 
@@ -13,9 +13,7 @@ public class UsuarioJpaController {
             em.getTransaction().begin();
             em.persist(usuario);
             em.getTransaction().commit();
-        } finally {
-            em.close();
-        }
+        } finally { em.close(); }
     }
 
     public void edit(Usuario usuario) {
@@ -24,9 +22,7 @@ public class UsuarioJpaController {
             em.getTransaction().begin();
             em.merge(usuario);
             em.getTransaction().commit();
-        } finally {
-            em.close();
-        }
+        } finally { em.close(); }
     }
 
     public void remove(Long id) {
@@ -36,30 +32,20 @@ public class UsuarioJpaController {
             Usuario u = em.find(Usuario.class, id);
             if (u != null) em.remove(u);
             em.getTransaction().commit();
-        } finally {
-            em.close();
-        }
+        } finally { em.close(); }
     }
 
     public Usuario find(Long id) {
         EntityManager em = JPAUtil.getEntityManager();
         try {
             return em.find(Usuario.class, id);
-        } finally {
-            em.close();
-        }
+        } finally { em.close(); }
     }
 
-    public Usuario findByUsername(String username) {
+    public List<Usuario> findAll() {
         EntityManager em = JPAUtil.getEntityManager();
         try {
-            return em.createQuery("SELECT u FROM Usuario u WHERE u.username = :user", Usuario.class)
-                    .setParameter("user", username)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        } finally {
-            em.close();
-        }
+            return em.createQuery("SELECT u FROM Usuario u", Usuario.class).getResultList();
+        } finally { em.close(); }
     }
 }

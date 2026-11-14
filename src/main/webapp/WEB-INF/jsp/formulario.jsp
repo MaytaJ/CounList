@@ -1,10 +1,11 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
 <!DOCTYPE html>
 <html>
 <head>
     <title>Formulario Movimiento</title>
     <style>
-        body { font-family: Arial; background: #f8f9fa; display: flex; justify-content: center; padding-top: 50px; }
+        body { font-family: Arial; background: #f8f9fa; display: flex; justify-content: center; padding-top: 30px; }
         .card { background: white; padding: 30px; border-radius: 8px; width: 350px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         input, select { width: 100%; padding: 8px; margin: 8px 0; border: 1px solid #ccc; box-sizing: border-box; border-radius: 4px; }
         button { width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px; }
@@ -16,6 +17,13 @@
     <h2>${movimiento != null ? 'Editar' : 'Nuevo'} Movimiento</h2>
     <form action="movimientos" method="POST">
         <input type="hidden" name="id" value="${movimiento.id}">
+
+        <label>Usuario (Dueño):</label>
+        <select name="usuarioId" required>
+            <c:forEach var="u" items="${usuarios}">
+                <option value="${u.id}" ${movimiento.usuario.id == u.id ? 'selected' : ''}>${u.nombre}</option>
+            </c:forEach>
+        </select>
 
         <label>Tipo:</label>
         <select name="tipo">
@@ -36,7 +44,7 @@
         <input type="text" name="categoria" value="${movimiento.categoria}">
 
         <button type="submit">Guardar</button>
-        <a href="movimientos" class="volver">Cancelar y volver</a>
+        <a href="movimientos" class="volver">Cancelar</a>
     </form>
 </div>
 </body>

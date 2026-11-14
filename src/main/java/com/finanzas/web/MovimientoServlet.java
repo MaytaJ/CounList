@@ -1,6 +1,7 @@
 package com.finanzas.web;
 
 import com.finanzas.logic.MovimientoControladora;
+import com.finanzas.logic.UsuarioControladora;
 import com.finanzas.model.Movimiento;
 import com.finanzas.model.Usuario;
 import jakarta.servlet.ServletException;
@@ -13,31 +14,22 @@ import java.time.LocalDate;
 @WebServlet("/movimientos")
 public class MovimientoServlet extends HttpServlet {
     private MovimientoControladora controladora = new MovimientoControladora();
-
-    private Usuario getUsuario(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect("login");
-            return null;
-        }
-        return (Usuario) session.getAttribute("user");
-    }
+    private UsuarioControladora usuarioCtrl = new UsuarioControladora();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Usuario u = getUsuario(request, response);
-        if (u == null) return;
-
         String accion = request.getParameter("accion");
         if (accion == null) accion = "listar";
 
         switch (accion) {
             case "nuevo":
+                request.setAttribute("usuarios", usuarioCtrl.traerUsuarios());
                 request.getRequestDispatcher("/WEB-INF/jsp/formulario.jsp").forward(request, response);
                 break;
             case "editar":
                 Long id = Long.parseLong(request.getParameter("id"));
                 request.setAttribute("movimiento", controladora.traerMovimiento(id));
+                request.setAttribute("usuarios", usuarioCtrl.traerUsuarios());
                 request.getRequestDispatcher("/WEB-INF/jsp/formulario.jsp").forward(request, response);
                 break;
             case "eliminar":
@@ -47,11 +39,7 @@ public class MovimientoServlet extends HttpServlet {
                 break;
             default:
                 String busqueda = request.getParameter("buscar");
-                if (busqueda != null && !busqueda.trim().isEmpty()) {
-                    request.setAttribute("lista", controladora.buscarMovimientos(u.getId(), busqueda));
-                } else {
-                    request.setAttribute("lista", controladora.listarMovimientos(u.getId()));
-                }
+                request.setAttribute("lista", controladora.listarMovimientos(busqueda));
                 request.getRequestDispatcher("/WEB-INF/jsp/lista.jsp").forward(request, response);
                 break;
         }
@@ -59,15 +47,13 @@ public class MovimientoServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Usuario u = getUsuario(request, response);
-        if (u == null) return;
-
         String idStr = request.getParameter("id");
         String tipo = request.getParameter("tipo");
         BigDecimal monto = new BigDecimal(request.getParameter("monto"));
         LocalDate fecha = LocalDate.parse(request.getParameter("fecha"));
         String descripcion = request.getParameter("descripcion");
         String categoria = request.getParameter("categoria");
+        Long usuarioId = Long.parseLong(request.getParameter("usuarioId"));
 
         Movimiento m = new Movimiento();
         m.setTipo(tipo);
@@ -75,7 +61,7 @@ public class MovimientoServlet extends HttpServlet {
         m.setFecha(fecha);
         m.setDescripcion(descripcion);
         m.setCategoria(categoria);
-        m.setUsuario(u);
+        m.setUsuario(usuarioCtrl.traerUsuario(usuarioId));
 
         if (idStr == null || idStr.isEmpty()) {
             controladora.crearMovimiento(m);

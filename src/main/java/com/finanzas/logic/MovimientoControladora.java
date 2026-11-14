@@ -11,8 +11,11 @@ public class MovimientoControladora {
         jpa.create(m);
     }
 
-    public List<Movimiento> listarMovimientos(Long idUsuario) {
-        return jpa.findByUsuario(idUsuario);
+    public List<Movimiento> listarMovimientos(String busqueda) {
+        if (busqueda != null && !busqueda.trim().isEmpty()) {
+            return jpa.buscarPorDescripcion(busqueda);
+        }
+        return jpa.findAll();
     }
 
     public Movimiento traerMovimiento(Long id) {
@@ -25,9 +28,5 @@ public class MovimientoControladora {
 
     public void eliminarMovimiento(Long id) {
         jpa.remove(id);
-    }
-
-    public List<Movimiento> buscarMovimientos(Long idUsuario, String texto) {
-        return jpa.buscarPorDescripcion(idUsuario, texto);
     }
 }
